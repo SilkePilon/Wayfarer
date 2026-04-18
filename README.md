@@ -1,15 +1,16 @@
 # Wayfarer
 
-A native GNOME application for planning automated drone survey and photogrammetry missions. Supports DJI Fly waypoint format and Litchi CSV export.
+A cross-platform desktop application for planning automated drone survey and photogrammetry missions. Supports DJI Fly waypoint format and Litchi CSV export.
 
-Built with Rust, GTK4, and libadwaita.
+Built with Rust, GTK4, and libadwaita. Runs on **Linux**, **Windows**, and **macOS**.
 
 > [!WARNING]
 > Wayfarer is in **early alpha**. Things will break, UI might be rough, and features are still missing. If you run into a bug, please [open an issue](https://github.com/SilkePilon/Wayfarer/issues/new?template=bug_report.yml) — it genuinely helps. Feature requests are also very welcome.
 
 ## Features
 
-- **Native GNOME experience** — built with GTK4 and libadwaita, follows GNOME HIG
+- **Cross-platform** — runs on Linux, Windows, and macOS
+- **Native look and feel** — built with GTK4 and libadwaita
 - **Interactive map** — draw survey polygons directly on the map using libshumate
 - **Boustrophedon flight paths** — automatic lawnmower-pattern waypoint generation
 - **DJI Fly export** — generates KMZ files compatible with DJI drones that support waypoints
