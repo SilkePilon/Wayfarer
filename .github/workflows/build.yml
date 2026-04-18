@@ -55,6 +55,7 @@ jobs:
                       mingw-w64-ucrt-x86_64-libadwaita
                       mingw-w64-ucrt-x86_64-libshumate
                       mingw-w64-ucrt-x86_64-rust mingw-w64-ucrt-x86_64-pkgconf
+                      zip
 
             - name: Build
               shell: msys2 {0}
