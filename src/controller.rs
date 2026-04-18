@@ -31,10 +31,7 @@ const WAYPOINT_PATHS: &[&str] = &[
 /// Scan a directory of mount points and collect any DJI controllers found.
 /// `name_fn` receives the mount entry name and returns a friendly name if it looks like a DJI device.
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-fn scan_mount_root(
-    root: &Path,
-    name_fn: impl Fn(&str) -> Option<String>,
-) -> Vec<DjiController> {
+fn scan_mount_root(root: &Path, name_fn: impl Fn(&str) -> Option<String>) -> Vec<DjiController> {
     let mut controllers = Vec::new();
     let Ok(entries) = std::fs::read_dir(root) else {
         return controllers;
@@ -79,9 +76,7 @@ pub fn detect_controllers() -> Vec<DjiController> {
             if let Some(host) = dir_name.strip_prefix("mtp:host=") {
                 let name = host
                     .split('_')
-                    .take_while(|s| {
-                        s.len() < 12 && !s.chars().all(|c| c.is_ascii_hexdigit())
-                    })
+                    .take_while(|s| s.len() < 12 && !s.chars().all(|c| c.is_ascii_hexdigit()))
                     .collect::<Vec<_>>()
                     .join(" ");
                 if !name.is_empty() {
@@ -194,13 +189,12 @@ pub fn has_existing_mission(controller: &DjiController) -> bool {
 /// Returns the path it was written to on success.
 pub fn upload_mission(controller: &DjiController, kmz_data: &[u8]) -> Result<PathBuf, String> {
     // Find the most recent mission folder
-    let mission_dir = find_latest_mission(&controller.waypoint_dir)
-        .ok_or_else(|| {
-            "No existing mission found on controller. \
+    let mission_dir = find_latest_mission(&controller.waypoint_dir).ok_or_else(|| {
+        "No existing mission found on controller. \
              Open DJI Fly on the controller, create and save a simple \
              1-waypoint mission first, then try again."
-                .to_string()
-        })?;
+            .to_string()
+    })?;
 
     // The folder name is a GUID like "6103D3C8-E79A-4B48-BBFE-50932D2E1306"
     let folder_name = mission_dir
@@ -236,8 +230,7 @@ pub fn upload_mission(controller: &DjiController, kmz_data: &[u8]) -> Result<Pat
     #[cfg(target_os = "linux")]
     {
         let tmp = std::env::temp_dir().join(format!("{folder_name}.kmz"));
-        std::fs::write(&tmp, kmz_data)
-            .map_err(|e| format!("Failed to write temp file: {e}"))?;
+        std::fs::write(&tmp, kmz_data).map_err(|e| format!("Failed to write temp file: {e}"))?;
 
         let status = std::process::Command::new("gio")
             .args(["copy", "-p"])
