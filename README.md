@@ -33,6 +33,7 @@ Built with Rust, GTK4, and libadwaita.
 Grab the latest build from the [Releases page](https://github.com/SilkePilon/Wayfarer/releases). Binaries are available for Linux, Windows, and macOS.
 
 **Linux:**
+
 ```bash
 # Extract and run
 tar -xf wayfarer-linux-x86_64.tar.gz
@@ -54,21 +55,25 @@ cd wayfarer-linux-x86_64
 - libshumate development libraries
 
 On Fedora:
+
 ```bash
 sudo dnf install gtk4-devel libadwaita-devel libshumate-devel
 ```
 
 On Ubuntu/Debian:
+
 ```bash
 sudo apt install libgtk-4-dev libadwaita-1-dev libshumate-1.0-dev
 ```
 
 On Arch:
+
 ```bash
 sudo pacman -S gtk4 libadwaita libshumate
 ```
 
 Then build and run:
+
 ```bash
 git clone https://github.com/SilkePilon/Wayfarer.git
 cd Wayfarer

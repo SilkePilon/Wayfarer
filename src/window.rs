@@ -280,20 +280,16 @@ pub fn build_window(app: &adw::Application) {
                 let state2 = state.clone();
                 let toast2 = toast.clone();
                 let stats_ref2 = stats_ref.clone();
-                terrain::fetch_elevations(waypoints.clone(), move |result| {
-                    match result {
-                        terrain::ElevationResult::Ok(elevs) => {
-                            state2.borrow_mut().terrain_elevations = elevs;
-                            if let Some(labels) = stats_ref2.borrow().as_ref() {
-                                let stats = state2.borrow().compute_stats();
-                                labels.update(&stats);
-                            }
+                terrain::fetch_elevations(waypoints.clone(), move |result| match result {
+                    terrain::ElevationResult::Ok(elevs) => {
+                        state2.borrow_mut().terrain_elevations = elevs;
+                        if let Some(labels) = stats_ref2.borrow().as_ref() {
+                            let stats = state2.borrow().compute_stats();
+                            labels.update(&stats);
                         }
-                        terrain::ElevationResult::Err(e) => {
-                            toast2.add_toast(adw::Toast::new(&format!(
-                                "Terrain fetch failed: {e}"
-                            )));
-                        }
+                    }
+                    terrain::ElevationResult::Err(e) => {
+                        toast2.add_toast(adw::Toast::new(&format!("Terrain fetch failed: {e}")));
                     }
                 });
             }
@@ -345,8 +341,7 @@ pub fn build_window(app: &adw::Application) {
     }
 
     // ── Projects page ─────────────────────────────────────────────────────
-    let projects_db: Rc<RefCell<Vec<ProjectMeta>>> =
-        Rc::new(RefCell::new(load_projects()));
+    let projects_db: Rc<RefCell<Vec<ProjectMeta>>> = Rc::new(RefCell::new(load_projects()));
 
     let (projects_widget, refresh_projects) = {
         let state = state.clone();
@@ -469,9 +464,7 @@ pub fn build_window(app: &adw::Application) {
         .build();
 
     // "Cancel" button (visible in setup)
-    let cancel_btn = gtk4::Button::builder()
-        .label("Cancel")
-        .build();
+    let cancel_btn = gtk4::Button::builder().label("Cancel").build();
 
     // "Back" button (visible in project-details, goes back to search)
     let details_back_btn = gtk4::Button::builder()
@@ -494,7 +487,10 @@ pub fn build_window(app: &adw::Application) {
     let map_section = gio::Menu::new();
     let layer_submenu = gio::Menu::new();
     layer_submenu.append(Some("OpenStreetMap"), Some("win.map-layer::osm"));
-    layer_submenu.append(Some("Google Satellite"), Some("win.map-layer::google-satellite"));
+    layer_submenu.append(
+        Some("Google Satellite"),
+        Some("win.map-layer::google-satellite"),
+    );
     map_section.append_submenu(Some("Map Layer"), &layer_submenu);
     map_section.append(Some("Show Labels"), Some("win.show-labels"));
     map_section.append(Some("Clear Markers"), Some("win.clear-markers"));
@@ -614,8 +610,7 @@ pub fn build_window(app: &adw::Application) {
         let state = state.clone();
         let map = map_view.clone();
         let dark_init = state.borrow().dark_mode;
-        let action =
-            gio::SimpleAction::new_stateful("dark-mode", None, &dark_init.to_variant());
+        let action = gio::SimpleAction::new_stateful("dark-mode", None, &dark_init.to_variant());
         action.connect_activate(move |action, _| {
             let current: bool = action.state().unwrap().get().unwrap_or(false);
             let new_val = !current;
@@ -695,8 +690,7 @@ pub fn build_window(app: &adw::Application) {
     {
         let labels = labels_on.clone();
         let apply = apply_map_source.clone();
-        let action =
-            gio::SimpleAction::new_stateful("show-labels", None, &true.to_variant());
+        let action = gio::SimpleAction::new_stateful("show-labels", None, &true.to_variant());
         action.connect_activate(move |action, _| {
             let current: bool = action.state().unwrap().get().unwrap_or(true);
             let new_val = !current;
@@ -982,9 +976,7 @@ fn build_project_details_page(
         .build();
     vbox.append(&location_label);
 
-    let coords_label = gtk4::Label::builder()
-        .css_classes(["dim-label"])
-        .build();
+    let coords_label = gtk4::Label::builder().css_classes(["dim-label"]).build();
     vbox.append(&coords_label);
 
     // Settings list
@@ -993,9 +985,7 @@ fn build_project_details_page(
         .css_classes(["boxed-list"])
         .build();
 
-    let name_row = adw::EntryRow::builder()
-        .title("Project Name")
-        .build();
+    let name_row = adw::EntryRow::builder().title("Project Name").build();
     list.append(&name_row);
 
     let folder_row = adw::ActionRow::builder()
@@ -1145,14 +1135,10 @@ fn build_project_details_page(
 
                     recalc();
                     main_stack.set_visible_child_name("editor");
-                    toast.add_toast(adw::Toast::new(&format!(
-                        "Project \"{name}\" created"
-                    )));
+                    toast.add_toast(adw::Toast::new(&format!("Project \"{name}\" created")));
                 }
                 Err(e) => {
-                    toast.add_toast(adw::Toast::new(&format!(
-                        "Failed to create project: {e}"
-                    )));
+                    toast.add_toast(adw::Toast::new(&format!("Failed to create project: {e}")));
                 }
             }
         });
@@ -1198,7 +1184,11 @@ fn geocode_suggestions_setup(
                             let display_name = item["display_name"].as_str()?.to_string();
                             let lat = item["lat"].as_str()?.parse::<f64>().ok()?;
                             let lon = item["lon"].as_str()?.parse::<f64>().ok()?;
-                            Some(GeoResult { display_name, lat, lon })
+                            Some(GeoResult {
+                                display_name,
+                                lat,
+                                lon,
+                            })
                         })
                         .collect::<Vec<_>>()
                 })
@@ -1530,9 +1520,14 @@ fn build_tab_aircraft(
     ground_offset_row.set_subtitle("Starting elevation offset (meters)");
     ground_offset_row.set_value(state.borrow().ground_offset);
     ground_offset_row.set_digits(0);
-    connect_spin(&ground_offset_row, state.clone(), recalculate.clone(), |s, v| {
-        s.ground_offset = v;
-    });
+    connect_spin(
+        &ground_offset_row,
+        state.clone(),
+        recalculate.clone(),
+        |s, v| {
+            s.ground_offset = v;
+        },
+    );
 
     let speed_row = adw::SpinRow::with_range(0.1, 9.0, 0.1);
     speed_row.set_title("Flight Speed");
@@ -1548,9 +1543,14 @@ fn build_tab_aircraft(
     cam_angle_row.set_subtitle("Camera tilt angle (degrees)");
     cam_angle_row.set_value(state.borrow().camera_angle as f64);
     cam_angle_row.set_digits(0);
-    connect_spin(&cam_angle_row, state.clone(), recalculate.clone(), |s, v| {
-        s.camera_angle = v as i32;
-    });
+    connect_spin(
+        &cam_angle_row,
+        state.clone(),
+        recalculate.clone(),
+        |s, v| {
+            s.camera_angle = v as i32;
+        },
+    );
 
     let delay_row = adw::SpinRow::with_range(0.0, 10.0, 0.1);
     delay_row.set_title("Delay at Waypoint");
@@ -1866,11 +1866,21 @@ fn build_tab_camera(
     res_group.add(&ih_row);
     vbox.append(&res_group);
 
-    connect_spin(&sw_row, state.clone(), recalculate.clone(), |s, v| s.sensor_width = v);
-    connect_spin(&sh_row, state.clone(), recalculate.clone(), |s, v| s.sensor_height = v);
-    connect_spin(&fl_row, state.clone(), recalculate.clone(), |s, v| s.focal_length = v);
-    connect_spin(&iw_row, state.clone(), recalculate.clone(), |s, v| s.image_width = v as i32);
-    connect_spin(&ih_row, state.clone(), recalculate.clone(), |s, v| s.image_height = v as i32);
+    connect_spin(&sw_row, state.clone(), recalculate.clone(), |s, v| {
+        s.sensor_width = v
+    });
+    connect_spin(&sh_row, state.clone(), recalculate.clone(), |s, v| {
+        s.sensor_height = v
+    });
+    connect_spin(&fl_row, state.clone(), recalculate.clone(), |s, v| {
+        s.focal_length = v
+    });
+    connect_spin(&iw_row, state.clone(), recalculate.clone(), |s, v| {
+        s.image_width = v as i32
+    });
+    connect_spin(&ih_row, state.clone(), recalculate.clone(), |s, v| {
+        s.image_height = v as i32
+    });
 
     let refresh_fields = {
         let sw = sw_row.clone();
@@ -2050,7 +2060,7 @@ fn build_tab_review(
              2. Create a simple 1-waypoint mission\n\
              3. Save the mission and quit DJI Fly\n\
              4. Connect the controller to your PC via USB-C\n\n\
-             This creates a mission slot that the app will reuse for all future uploads."
+             This creates a mission slot that the app will reuse for all future uploads.",
         )
         .activatable(false)
         .visible(false)
@@ -2322,7 +2332,11 @@ fn build_tab_review(
         .subtitle("Generates a .kmz file in WPML format")
         .activatable(true)
         .build();
-    dji_row.add_prefix(&gtk4::Image::builder().icon_name("airplane-mode-symbolic").build());
+    dji_row.add_prefix(
+        &gtk4::Image::builder()
+            .icon_name("airplane-mode-symbolic")
+            .build(),
+    );
     dji_row.add_suffix(&gtk4::Image::builder().icon_name("go-next-symbolic").build());
 
     let litchi_row = adw::ActionRow::builder()
@@ -2330,7 +2344,11 @@ fn build_tab_review(
         .subtitle("Generates a .csv for Litchi Mission Hub")
         .activatable(true)
         .build();
-    litchi_row.add_prefix(&gtk4::Image::builder().icon_name("document-send-symbolic").build());
+    litchi_row.add_prefix(
+        &gtk4::Image::builder()
+            .icon_name("document-send-symbolic")
+            .build(),
+    );
     litchi_row.add_suffix(&gtk4::Image::builder().icon_name("go-next-symbolic").build());
 
     let kml_export_row = adw::ActionRow::builder()
@@ -2338,7 +2356,11 @@ fn build_tab_review(
         .subtitle("Save polygon boundary as .kml")
         .activatable(true)
         .build();
-    kml_export_row.add_prefix(&gtk4::Image::builder().icon_name("mark-location-symbolic").build());
+    kml_export_row.add_prefix(
+        &gtk4::Image::builder()
+            .icon_name("mark-location-symbolic")
+            .build(),
+    );
     kml_export_row.add_suffix(&gtk4::Image::builder().icon_name("go-next-symbolic").build());
 
     let kml_import_row = adw::ActionRow::builder()
@@ -2346,7 +2368,11 @@ fn build_tab_review(
         .subtitle("Load polygon from an existing .kml file")
         .activatable(true)
         .build();
-    kml_import_row.add_prefix(&gtk4::Image::builder().icon_name("document-open-symbolic").build());
+    kml_import_row.add_prefix(
+        &gtk4::Image::builder()
+            .icon_name("document-open-symbolic")
+            .build(),
+    );
     kml_import_row.add_suffix(&gtk4::Image::builder().icon_name("go-next-symbolic").build());
 
     other_expander.add_row(&dji_row);
@@ -2444,7 +2470,9 @@ fn build_tab_review(
                 let path = dir.join("boundary.kml");
                 drop(s);
                 match std::fs::write(&path, kml.as_bytes()) {
-                    Ok(()) => toast.add_toast(adw::Toast::new(&format!("Saved to {}", path.display()))),
+                    Ok(()) => {
+                        toast.add_toast(adw::Toast::new(&format!("Saved to {}", path.display())))
+                    }
                     Err(e) => toast.add_toast(adw::Toast::new(&format!("Save failed: {e}"))),
                 }
             } else {
@@ -2473,26 +2501,34 @@ fn build_tab_review(
             filters.append(&filter);
             dialog.set_filters(Some(&filters));
 
-            dialog.open(gtk4::Window::NONE, gtk4::gio::Cancellable::NONE, move |res| {
-                if let Ok(file) = res {
-                    if let Some(path) = file.path() {
-                        match std::fs::read_to_string(&path) {
-                            Ok(content) => {
-                                if let Some(polygon) = parse_kml_polygon(&content) {
-                                    state.borrow_mut().polygon = polygon;
-                                    recalc();
-                                    toast.add_toast(adw::Toast::new("Boundary imported successfully."));
-                                } else {
-                                    toast.add_toast(adw::Toast::new("No valid polygon found in KML."));
+            dialog.open(
+                gtk4::Window::NONE,
+                gtk4::gio::Cancellable::NONE,
+                move |res| {
+                    if let Ok(file) = res {
+                        if let Some(path) = file.path() {
+                            match std::fs::read_to_string(&path) {
+                                Ok(content) => {
+                                    if let Some(polygon) = parse_kml_polygon(&content) {
+                                        state.borrow_mut().polygon = polygon;
+                                        recalc();
+                                        toast.add_toast(adw::Toast::new(
+                                            "Boundary imported successfully.",
+                                        ));
+                                    } else {
+                                        toast.add_toast(adw::Toast::new(
+                                            "No valid polygon found in KML.",
+                                        ));
+                                    }
                                 }
-                            }
-                            Err(e) => {
-                                toast.add_toast(adw::Toast::new(&format!("Read error: {e}")));
+                                Err(e) => {
+                                    toast.add_toast(adw::Toast::new(&format!("Read error: {e}")));
+                                }
                             }
                         }
                     }
-                }
-            });
+                },
+            );
         });
     }
 
@@ -2530,12 +2566,15 @@ struct StatsLabels {
 impl StatsLabels {
     fn update(&self, stats: &MissionStats) {
         self.waypoints.set_label(&stats.waypoint_count.to_string());
-        self.distance.set_label(&format!("{:.0} m", stats.flight_distance_m));
+        self.distance
+            .set_label(&format!("{:.0} m", stats.flight_distance_m));
         self.area.set_label(&format_area(stats.area_m2));
-        self.time.set_label(&format!("{:.1} min", stats.estimated_time_min));
+        self.time
+            .set_label(&format!("{:.1} min", stats.estimated_time_min));
         self.gsd.set_label(&format!("{:.1} cm/px", stats.gsd_cm));
         self.shutter.set_label(&stats.recommended_shutter);
-        self.interval.set_label(&format!("{:.1} s", stats.photo_interval_s));
+        self.interval
+            .set_label(&format!("{:.1} s", stats.photo_interval_s));
     }
 }
 
@@ -2697,8 +2736,9 @@ mod urlencoding {
         let mut out = String::with_capacity(s.len());
         for b in s.bytes() {
             match b {
-                b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9'
-                | b'-' | b'_' | b'.' | b'~' => out.push(b as char),
+                b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                    out.push(b as char)
+                }
                 b' ' => out.push('+'),
                 _ => out.push_str(&format!("%{b:02X}")),
             }
