@@ -1,0 +1,36 @@
+[package]
+name = "wayfarer"
+version = "0.1.0"
+edition = "2021"
+description = "GNOME native drone photogrammetry survey planner"
+license = "GPL-3.0-or-later"
+
+[[bin]]
+name = "wayfarer"
+path = "src/main.rs"
+
+[dependencies]
+# GNOME / GTK4 stack
+gtk4       = { version = "0.9", features = ["v4_12"] }
+adw        = { package = "libadwaita", version = "0.7", features = ["v1_5"] }
+libshumate = "0.6"
+gdk4       = "0.9"
+glib       = "0.20"
+gio        = { version = "0.20", features = ["v2_74"] }
+
+# Serialisation
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Archiving / export
+zip        = "2"
+
+# HTTP (sync, for elevation API – called off main thread)
+ureq       = { version = "2", features = ["json"] }
+
+# Config-dir discovery
+directories = "5"
+
+# System
+libc = "0.2"
+
