@@ -67,12 +67,13 @@ jobs:
                   cp target/release/wayfarer.exe wayfarer-windows-x86_64/
                   # Bundle required DLLs
                   ldd target/release/wayfarer.exe | grep ucrt64 | awk '{print $3}' | xargs -I{} cp {} wayfarer-windows-x86_64/
+                  zip -r wayfarer-windows-x86_64.zip wayfarer-windows-x86_64/
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
               with:
                   name: wayfarer-windows-x86_64
-                  path: wayfarer-windows-x86_64/
+                  path: wayfarer-windows-x86_64.zip
 
     build-macos:
         runs-on: macos-latest
@@ -118,5 +119,5 @@ jobs:
                   tag_name: ${{ github.event.release.tag_name }}
                   files: |
                       wayfarer-linux-x86_64/wayfarer-linux-x86_64.tar.gz
-                      wayfarer-windows-x86_64/*
+                      wayfarer-windows-x86_64/wayfarer-windows-x86_64.zip
                       wayfarer-macos-arm64/wayfarer-macos-arm64.tar.gz
