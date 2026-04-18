@@ -18,8 +18,9 @@ jobs:
 
             - name: Install dependencies
               run: |
+                  sudo add-apt-repository universe -y
                   sudo apt-get update
-                  sudo apt-get install -y libgtk-4-dev libadwaita-1-dev libshumate-1.0-dev
+                  sudo apt-get install -y libgtk-4-dev libadwaita-1-dev libshumate-dev
 
             - name: Setup Rust
               uses: dtolnay/rust-toolchain@stable
