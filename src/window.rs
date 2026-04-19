@@ -670,6 +670,10 @@ pub fn build_window(app: &adw::Application) {
         })
     };
 
+    // Apply map source at init so we don't depend on MapSourceRegistry
+    // (which may not include OSM Mapnik on Windows).
+    apply_map_source();
+
     {
         let layer = current_layer.clone();
         let apply = apply_map_source.clone();
@@ -1009,8 +1013,10 @@ fn build_project_details_page(
         let chosen = chosen_dir.clone();
         let row = folder_row.clone();
         folder_row.connect_activated(move |_| {
+            let initial = gtk4::gio::File::for_path(&*chosen.borrow());
             let chooser = gtk4::FileDialog::builder()
                 .title("Choose Project Location")
+                .initial_folder(&initial)
                 .build();
             let chosen = chosen.clone();
             let row = row.clone();
