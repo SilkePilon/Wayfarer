@@ -134,13 +134,11 @@ jobs:
         run: choco install nsis --no-progress -y
 
       - name: Create installer
-        shell: msys2 {0}
+        shell: pwsh
         run: |
-          # Verify bundle was populated
-          echo "Bundle contents:"
-          ls wayfarer-bundle/ || { echo "ERROR: wayfarer-bundle is missing or empty"; exit 1; }
-          # Run makensis from the workspace (MSYS2 CWD) so relative paths resolve correctly
-          "/c/Program Files (x86)/NSIS/makensis.exe" windows/installer.nsi
+          # Set-Location ensures makensis resolves wayfarer-bundle\ relative to the repo root
+          Set-Location $env:GITHUB_WORKSPACE
+          & "C:\Program Files (x86)\NSIS\makensis.exe" windows\installer.nsi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
