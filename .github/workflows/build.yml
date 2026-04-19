@@ -34,10 +34,11 @@ jobs:
 
       - name: Build AppImage
         run: |
-          # Download linuxdeploy + GTK plugin
+          # Download linuxdeploy + GTK plugin + appimagetool
           wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
           wget -q "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh"
-          chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-gtk.sh
+          wget -q "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+          chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-gtk.sh appimagetool-x86_64.AppImage
 
           # Prepare AppDir
           install -Dm755 target/release/wayfarer AppDir/usr/bin/wayfarer
@@ -50,13 +51,20 @@ jobs:
           convert -background none assets/io.github.silkepilon.Wayfarer.svg \
             -resize 256x256 AppDir/usr/share/icons/hicolor/256x256/apps/io.github.silkepilon.Wayfarer.png
 
-          # Build AppImage
+          # Process AppDir with GTK plugin (don't package yet)
           DEPLOY_GTK_VERSION=4 \
-          OUTPUT=wayfarer-linux-x86_64.AppImage \
           ./linuxdeploy-x86_64.AppImage \
             --appdir AppDir \
-            --plugin gtk \
-            --output appimage
+            --plugin gtk
+
+          # Remove GTK_THEME override injected by the plugin — libadwaita manages
+          # its own stylesheet and respects the system color-scheme; forcing
+          # GTK_THEME=Adwaita makes the app look like old GTK3 Adwaita.
+          sed -i '/export GTK_THEME/d' AppDir/AppRun
+
+          # Package into AppImage
+          OUTPUT=wayfarer-linux-x86_64.AppImage \
+          ./appimagetool-x86_64.AppImage AppDir
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -126,9 +134,13 @@ jobs:
         run: choco install nsis --no-progress -y
 
       - name: Create installer
-        shell: pwsh
+        shell: msys2 {0}
         run: |
-          & "C:\Program Files (x86)\NSIS\makensis.exe" windows\installer.nsi
+          # Verify bundle was populated
+          echo "Bundle contents:"
+          ls wayfarer-bundle/ || { echo "ERROR: wayfarer-bundle is missing or empty"; exit 1; }
+          # Run makensis from the workspace (MSYS2 CWD) so relative paths resolve correctly
+          "/c/Program Files (x86)/NSIS/makensis.exe" windows/installer.nsi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
