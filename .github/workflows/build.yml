@@ -62,9 +62,8 @@ jobs:
           # GTK_THEME=Adwaita makes the app look like old GTK3 Adwaita.
           sed -i '/export GTK_THEME/d' AppDir/AppRun
 
-          # Package into AppImage
-          OUTPUT=wayfarer-linux-x86_64.AppImage \
-          ./appimagetool-x86_64.AppImage AppDir
+          # Package into AppImage (second arg = output filename for appimagetool)
+          ./appimagetool-x86_64.AppImage AppDir wayfarer-linux-x86_64.AppImage
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
