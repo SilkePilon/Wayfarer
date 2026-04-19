@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Wayfarer
+Comment=Drone photogrammetry survey planner
+Exec=wayfarer
+Icon=io.github.silkepilon.Wayfarer
+Type=Application
+Categories=Science;Education;
+Keywords=drone;photogrammetry;survey;DJI;mapping;
+StartupWMClass=wayfarer

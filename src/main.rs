@@ -28,6 +28,17 @@ fn main() {
         }
     }
 
+    // On macOS, when running from a .app bundle the schemas live inside
+    // Contents/Resources rather than a system path.
+    #[cfg(target_os = "macos")]
+    {
+        if std::env::var_os("GSETTINGS_SCHEMA_DIR").is_none() {
+            if let Some(schema_dir) = find_macos_schema_dir() {
+                std::env::set_var("GSETTINGS_SCHEMA_DIR", &schema_dir);
+            }
+        }
+    }
+
     let app = application::WayfarerApp::new();
     std::process::exit(app.run());
 }
@@ -80,5 +91,26 @@ fn find_windows_schema_dir() -> Option<std::path::PathBuf> {
         }
     }
 
+    None
+}
+
+/// Look for `gschemas.compiled` inside a macOS .app bundle's Resources folder.
+#[cfg(target_os = "macos")]
+fn find_macos_schema_dir() -> Option<std::path::PathBuf> {
+    use std::path::PathBuf;
+    let suffix: PathBuf = ["share", "glib-2.0", "schemas"].iter().collect();
+
+    if let Ok(exe) = std::env::current_exe() {
+        // exe is at Wayfarer.app/Contents/MacOS/wayfarer
+        // Resources is at Wayfarer.app/Contents/Resources
+        if let Some(macos_dir) = exe.parent() {
+            if let Some(contents_dir) = macos_dir.parent() {
+                let candidate = contents_dir.join("Resources").join(&suffix);
+                if candidate.join("gschemas.compiled").exists() {
+                    return Some(candidate);
+                }
+            }
+        }
+    }
     None
 }
