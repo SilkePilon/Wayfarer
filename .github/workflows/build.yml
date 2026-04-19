@@ -139,17 +139,12 @@ jobs:
         shell: pwsh
         run: |
           Set-Location $env:GITHUB_WORKSPACE
-          Write-Host "CWD: $PWD"
-          if (Test-Path wayfarer-bundle) {
-            Write-Host "Bundle found. First 5 items:"
-            Get-ChildItem wayfarer-bundle | Select-Object -First 5 | ForEach-Object { Write-Host $_.Name }
-          } else {
-            Write-Host "ERROR: wayfarer-bundle not found in $PWD"
-            Write-Host "Workspace root contents:"
-            Get-ChildItem . | ForEach-Object { Write-Host $_.Name }
-            exit 1
-          }
-          & "C:\Program Files (x86)\NSIS\makensis.exe" windows\installer.nsi
+          $bundleDir = Join-Path $env:GITHUB_WORKSPACE 'wayfarer-bundle'
+          $outFile   = Join-Path $env:GITHUB_WORKSPACE 'wayfarer-windows-x86_64-setup.exe'
+          & "C:\Program Files (x86)\NSIS\makensis.exe" `
+              /DBUNDLE_DIR="$bundleDir" `
+              /DOUT_FILE="$outFile" `
+              windows\installer.nsi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

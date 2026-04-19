@@ -8,7 +8,7 @@ Unicode True
 
 ; ── Metadata ─────────────────────────────────────────────────────────────────
 Name "Wayfarer"
-OutFile "${__FILEDIR__}\..\wayfarer-windows-x86_64-setup.exe"
+OutFile "${OUT_FILE}"
 InstallDir "$LOCALAPPDATA\Wayfarer"
 InstallDirRegKey HKCU "Software\Wayfarer" "InstallDir"
 RequestExecutionLevel user   ; no UAC prompt needed
@@ -29,8 +29,8 @@ RequestExecutionLevel user   ; no UAC prompt needed
 Section "Wayfarer" SecMain
     SetOutPath "$INSTDIR"
 
-    ; Copy everything from the bundle directory (absolute path — independent of makensis CWD)
-    File /r "${__FILEDIR__}\..\wayfarer-bundle\*.*"
+    ; Copy everything from the bundle directory (path passed as /D define from CI)
+    File /r "${BUNDLE_DIR}\*.*"
 
     ; Write uninstaller
     WriteUninstaller "$INSTDIR\Uninstall.exe"
