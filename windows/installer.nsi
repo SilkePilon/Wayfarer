@@ -3,17 +3,12 @@
 ; Run from the repository root:
 ;   makensis windows\installer.nsi
 
-; Change NSIS working dir to the repo root (one level up from this script's
-; directory) so that relative paths like "wayfarer-bundle\*.*" resolve correctly
-; regardless of where makensis is invoked from.
-!cd "${__FILEDIR__}\.."
-
 Unicode True
 !include "MUI2.nsh"
 
 ; ── Metadata ─────────────────────────────────────────────────────────────────
 Name "Wayfarer"
-OutFile "wayfarer-windows-x86_64-setup.exe"
+OutFile "${__FILEDIR__}\..\wayfarer-windows-x86_64-setup.exe"
 InstallDir "$LOCALAPPDATA\Wayfarer"
 InstallDirRegKey HKCU "Software\Wayfarer" "InstallDir"
 RequestExecutionLevel user   ; no UAC prompt needed
@@ -34,8 +29,8 @@ RequestExecutionLevel user   ; no UAC prompt needed
 Section "Wayfarer" SecMain
     SetOutPath "$INSTDIR"
 
-    ; Copy everything from the bundle directory
-    File /r "wayfarer-bundle\*.*"
+    ; Copy everything from the bundle directory (absolute path — independent of makensis CWD)
+    File /r "${__FILEDIR__}\..\wayfarer-bundle\*.*"
 
     ; Write uninstaller
     WriteUninstaller "$INSTDIR\Uninstall.exe"
