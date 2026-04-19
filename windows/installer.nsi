@@ -3,6 +3,11 @@
 ; Run from the repository root:
 ;   makensis windows\installer.nsi
 
+; Change NSIS working dir to the repo root (one level up from this script's
+; directory) so that relative paths like "wayfarer-bundle\*.*" resolve correctly
+; regardless of where makensis is invoked from.
+!cd "${__FILEDIR__}\.."
+
 Unicode True
 !include "MUI2.nsh"
 
