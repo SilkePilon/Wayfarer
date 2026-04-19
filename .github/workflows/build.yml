@@ -45,7 +45,8 @@ jobs:
             AppDir/usr/share/applications/io.github.silkepilon.Wayfarer.desktop
           install -Dm644 assets/io.github.silkepilon.Wayfarer.svg \
             "AppDir/usr/share/icons/hicolor/scalable/apps/io.github.silkepilon.Wayfarer.svg"
-          # Rasterise icon for linuxdeploy
+          # Rasterise icon for linuxdeploy (directory must exist first)
+          mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
           convert -background none assets/io.github.silkepilon.Wayfarer.svg \
             -resize 256x256 AppDir/usr/share/icons/hicolor/256x256/apps/io.github.silkepilon.Wayfarer.png
 
@@ -120,10 +121,14 @@ jobs:
           cp -r /ucrt64/share/icons/hicolor wayfarer-bundle/share/icons/ 2>/dev/null || true
           cp -r /ucrt64/share/icons/Adwaita wayfarer-bundle/share/icons/ 2>/dev/null || true
 
+      - name: Install NSIS
+        shell: pwsh
+        run: choco install nsis --no-progress -y
+
       - name: Create installer
-        shell: cmd
+        shell: pwsh
         run: |
-          "C:\Program Files (x86)\NSIS\makensis.exe" windows\installer.nsi
+          & "C:\Program Files (x86)\NSIS\makensis.exe" windows\installer.nsi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
