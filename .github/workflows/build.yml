@@ -62,8 +62,11 @@ jobs:
           # GTK_THEME=Adwaita makes the app look like old GTK3 Adwaita.
           sed -i '/export GTK_THEME/d' AppDir/AppRun
 
-          # Package into AppImage (second arg = output filename for appimagetool)
-          ./appimagetool-x86_64.AppImage AppDir wayfarer-linux-x86_64.AppImage
+          # Package into AppImage
+          # appimagetool requires ARCH and names the file from the desktop Name field
+          ARCH=x86_64 ./appimagetool-x86_64.AppImage AppDir
+          # Rename to expected artifact name (desktop Name = "Wayfarer" → Wayfarer-x86_64.AppImage)
+          mv -f Wayfarer-x86_64.AppImage wayfarer-linux-x86_64.AppImage
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -135,8 +138,17 @@ jobs:
       - name: Create installer
         shell: pwsh
         run: |
-          # Set-Location ensures makensis resolves wayfarer-bundle\ relative to the repo root
           Set-Location $env:GITHUB_WORKSPACE
+          Write-Host "CWD: $PWD"
+          if (Test-Path wayfarer-bundle) {
+            Write-Host "Bundle found. First 5 items:"
+            Get-ChildItem wayfarer-bundle | Select-Object -First 5 | ForEach-Object { Write-Host $_.Name }
+          } else {
+            Write-Host "ERROR: wayfarer-bundle not found in $PWD"
+            Write-Host "Workspace root contents:"
+            Get-ChildItem . | ForEach-Object { Write-Host $_.Name }
+            exit 1
+          }
           & "C:\Program Files (x86)\NSIS\makensis.exe" windows\installer.nsi
 
       - name: Upload artifact
